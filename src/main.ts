@@ -8,7 +8,7 @@ async function bootstrap() {
   app.connectMicroservice({
     transport: Transport.NATS,
     options: {
-      servers: ['nats-main:4222'],
+      servers: ['n1.example.net:4222'],
     },
   });
 

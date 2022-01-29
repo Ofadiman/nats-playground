@@ -14,35 +14,53 @@ services:
       - '3000:3000'
     volumes:
       - .:/app
-    depends_on: ['nats-main']
-    links: ['nats-main']
+    depends_on: ['n1.example.net']
+    links: ['n1.example.net']
     working_dir: /app
     networks: ['nats']
     command: yarn start:debug
 
-  # Run main NATS server.
-  nats-main:
-    image: nats:2.7.1-alpine3.15
-    container_name: nats-main
-    ports: ['4222:4222', '6222:6222', '8222:8222']
-    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --http_port 8222'
-    networks: ['nats']
+  # Run the main NATS JetStream server.
+  n1.example.net:
+    container_name: n1
+    image: synadia/jsm:nightly-20210429
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name N1 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+      - nats
+    ports:
+      - 4222:4222
+    volumes:
+      - ./jetstream-cluster/n1:/data
 
-  # Create another NATS server and point it to the seed server to form a cluster.
-  nats-one:
-    image: nats:2.7.1-alpine3.15
-    container_name: nats-one
-    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --routes=nats://ruser:T0pS3cr3t@nats:6222'
-    networks: ['nats']
-    depends_on: ['nats-main']
+  # Run the auxiliary NATS JetStream server.
+  n2.example.net:
+    container_name: n2
+    image: synadia/jsm:nightly-20210429
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name N2 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+      - nats
+    ports:
+      - 4223:4222
+    volumes:
+      - ./jetstream-cluster/n2:/data
 
-  # Create another NATS server and point it to the seed server to form a cluster.
-  nats-two:
-    image: nats:2.7.1-alpine3.15
-    container_name: nats-two
-    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --routes=nats://ruser:T0pS3cr3t@nats:6222'
-    networks: ['nats']
-    depends_on: ['nats-main']
+  # Run the auxiliary NATS JetStream server.
+  n3.example.net:
+    container_name: n3
+    image: synadia/jsm:nightly-20210429
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name N3 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+      - nats
+    ports:
+      - 4224:4222
+    volumes:
+      - ./jetstream-cluster/n3:/data
 
 networks:
   nats:

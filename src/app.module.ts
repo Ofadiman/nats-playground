@@ -10,14 +10,14 @@ import { PublishSubscribeController } from './publish-subscribe.controller';
         name: 'REQUEST_REPLY',
         transport: Transport.NATS,
         options: {
-          servers: ['nats-main:4222'],
+          servers: ['n1.example.net:4222'],
         },
       },
       {
         name: 'PUBLISH_SUBSCRIBE',
         transport: Transport.NATS,
         options: {
-          servers: ['nats-main:4222'],
+          servers: ['n1.example.net:4222'],
         },
       },
     ]),
