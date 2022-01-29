@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  nats-playground:
+    container_name: nats-playground
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      args:
+        - user_id=$UID
+        - group_id=$GID
+        - user=$USER
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+    depends_on: ['nats-main']
+    links: ['nats-main']
+    working_dir: /app
+    networks: ['nats']
+    command: yarn start:debug
+
+  # Run main NATS server.
+  nats-main:
+    image: nats:2.7.1-alpine3.15
+    container_name: nats-main
+    ports: ['4222:4222', '6222:6222', '8222:8222']
+    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --http_port 8222'
+    networks: ['nats']
+
+  # Create another NATS server and point it to the seed server to form a cluster.
+  nats-one:
+    image: nats:2.7.1-alpine3.15
+    container_name: nats-one
+    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --routes=nats://ruser:T0pS3cr3t@nats:6222'
+    networks: ['nats']
+    depends_on: ['nats-main']
+
+  # Create another NATS server and point it to the seed server to form a cluster.
+  nats-two:
+    image: nats:2.7.1-alpine3.15
+    container_name: nats-two
+    command: '--cluster_name NATS --cluster nats://0.0.0.0:6222 --routes=nats://ruser:T0pS3cr3t@nats:6222'
+    networks: ['nats']
+    depends_on: ['nats-main']
+
+networks:
+  nats:
+    name: nats
