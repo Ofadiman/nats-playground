@@ -12,7 +12,7 @@ const REQUEST_REPLY_MESSAGE_PATTERN = { cmd: 'sum' };
 
 @Controller()
 export class RequestReplyController {
-  constructor(@Inject('MATH_SERVICE') private clientProxy: ClientProxy) {}
+  constructor(@Inject('REQUEST_REPLY') private clientProxy: ClientProxy) {}
 
   @Post('request-reply')
   public async requestReply(@Body() body: { items: string[] }) {

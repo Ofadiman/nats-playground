@@ -1,12 +1,20 @@
 import { Module } from '@nestjs/common';
 import { RequestReplyController } from './request-reply.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { PublishSubscribeController } from './publish-subscribe.controller';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'MATH_SERVICE',
+        name: 'REQUEST_REPLY',
+        transport: Transport.NATS,
+        options: {
+          servers: ['nats-main:4222'],
+        },
+      },
+      {
+        name: 'PUBLISH_SUBSCRIBE',
         transport: Transport.NATS,
         options: {
           servers: ['nats-main:4222'],
@@ -14,6 +22,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  controllers: [RequestReplyController],
+  controllers: [RequestReplyController, PublishSubscribeController],
 })
 export class AppModule {}
