@@ -7,6 +7,7 @@ import {
   Payload,
   Transport,
 } from '@nestjs/microservices';
+import { timeout } from 'rxjs';
 
 const REQUEST_REPLY_MESSAGE_PATTERN = { cmd: 'sum' };
 
@@ -16,10 +17,9 @@ export class RequestReplyController {
 
   @Post('request-reply')
   public async requestReply(@Body() body: { items: string[] }) {
-    return this.clientProxy.send<number>(
-      REQUEST_REPLY_MESSAGE_PATTERN,
-      body.items,
-    );
+    return this.clientProxy
+      .send<number>(REQUEST_REPLY_MESSAGE_PATTERN, body.items)
+      .pipe(timeout(1_000));
   }
 
   @MessagePattern(REQUEST_REPLY_MESSAGE_PATTERN, Transport.NATS)

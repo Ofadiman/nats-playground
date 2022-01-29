@@ -1,5 +1,6 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { timeout } from 'rxjs';
 
 const PUBLISH_SUBSCRIBE_EVENT_PATTERN = 'request_send';
 
@@ -9,7 +10,9 @@ export class PublishSubscribeController {
 
   @Post('publish-subscribe')
   public publishSubscribe(@Body() body: { name: string }) {
-    this.clientProxy.emit(PUBLISH_SUBSCRIBE_EVENT_PATTERN, body);
+    this.clientProxy
+      .emit(PUBLISH_SUBSCRIBE_EVENT_PATTERN, body)
+      .pipe(timeout(1_000));
   }
 
   @EventPattern(PUBLISH_SUBSCRIBE_EVENT_PATTERN)
